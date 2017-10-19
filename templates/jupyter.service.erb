@@ -9,7 +9,7 @@ PIDFile=/run/jupyter-<%= @service_name %>.pid
 ExecStart=/usr/local/bin/jupyter-notebook --no-browser
 User=<%= @group %>
 Group=<%= @user %>
-WorkingDirectory=/home/<%= @user %>/notebooks
+WorkingDirectory=<%= @working_dir %>
 Restart=always
 RestartSec=10
 #KillMode=mixed

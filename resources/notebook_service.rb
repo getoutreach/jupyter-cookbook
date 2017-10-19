@@ -1,10 +1,17 @@
 property :username, String, default: 'jupyter'
 property :groupname, String, default: 'jupyter'
 property :service_name, String, name_property: true
+property :working_dir, String, default: ''
 
 action :create do
   group new_resource.groupname do
     system true
+  end
+
+  if new_resource.working_dir.empty?
+    working_dir = "/home/#{new_resource.username}/notebooks"
+  else
+    working_dir = new_resource.working_dir
   end
 
   user new_resource.username do
@@ -20,17 +27,18 @@ action :create do
     group 'root'
   end
 
-  directory "/home/#{new_resource.username}/notebooks" do
+  directory working_dir do
     group new_resource.groupname
-    user new_resource.username
+    owner new_resource.username
   end
 
-  template "/usr/lib/systemd/system/jupyter-#{new_resource.service_name}.service" do
+  template "/usr/lib/systemd/system/#{new_resource.service_name}.service" do
     source 'jupyter.service.erb'
     variables(
       service_name: new_resource.service_name,
       user: new_resource.username,
-      group: new_resource.groupname
+      group: new_resource.groupname,
+      working_dir: working_dir,
     )
     owner 'root'
     group 'root'
@@ -38,11 +46,10 @@ action :create do
     action :create
   end
 end
-
 [:enable, :start].each do |proxy_action|
   action proxy_action do
-    service "jupyter-#{new_resource.service_name}" do
-      action proxy_action
+    service new_resource.service_name do
+      action [:enable, :start]
     end
   end
 end
