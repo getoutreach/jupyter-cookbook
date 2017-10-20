@@ -6,7 +6,9 @@ Type=simple
 PIDFile=/run/jupyter-<%= @service_name %>.pid
 # Step 1 and Step 2 details are here..
 # ------------------------------------
-ExecStart=/usr/local/bin/jupyter-notebook --no-browser
+Environment="JUPYTER_PATH=<%= @working_dir %>"
+Environment="JUPITER_RUNTIME_DIR=<%= @working_dir %>"
+ExecStart=/usr/local/bin/jupyter-notebook --no-browser --notebook-dir=<%= @working_dir %>
 User=<%= @group %>
 Group=<%= @user %>
 WorkingDirectory=<%= @working_dir %>
